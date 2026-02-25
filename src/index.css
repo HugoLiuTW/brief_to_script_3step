@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-ios: 24px;
+  --color-ios-gray: #F2F2F7;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-white text-[#1C1C1E] overflow-hidden;
+  }
+}
+
+.glass-sidebar {
+  @apply bg-[#F2F2F7]/85 backdrop-blur-2xl border-r border-black/5;
+}
+
+.ios-card {
+  @apply bg-[#F2F2F7] rounded-[var(--radius-ios)] border border-black/5 transition-all duration-300;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  @apply font-bold text-[#1C1C1E] mt-4 mb-2;
+}
+
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+
+.ios-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #D1D1D6;
+  border-radius: 6px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  @apply bg-white;
+}
+.ios-checkbox:checked {
+  background-color: #1C1C1E;
+  border-color: #1C1C1E;
+}
+.ios-checkbox:checked::after {
+  content: '✓';
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
