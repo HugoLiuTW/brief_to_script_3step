@@ -259,11 +259,32 @@ export default function App() {
           未偵測到 API Key，請在環境變數中設定 GEMINI_API_KEY
         </div>
       )}
+      {/* Sidebar Overlay for Mobile */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ width: sidebarOpen ? 288 : 0, padding: sidebarOpen ? 24 : 0 }}
-        className="glass-sidebar h-full flex flex-col z-30 overflow-hidden relative"
+        animate={{ 
+          width: sidebarOpen ? (window.innerWidth < 768 ? "85%" : 288) : 0, 
+          padding: sidebarOpen ? 24 : 0,
+          x: sidebarOpen ? 0 : -288
+        }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className={cn(
+          "glass-sidebar h-full flex flex-col z-30 overflow-hidden fixed md:relative",
+          !sidebarOpen && "pointer-events-none"
+        )}
       >
         <div className="flex items-center justify-between mb-10 min-w-[240px]">
           <div className="flex items-center gap-3">
@@ -301,11 +322,27 @@ export default function App() {
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-white relative">
+      <main className="flex-1 flex flex-col min-w-0 bg-white relative h-full">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-black/5 bg-white/80 backdrop-blur-xl z-20">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black rounded-xl flex items-center justify-center text-white">
+              <Sparkles size={16} />
+            </div>
+            <span className="font-bold text-lg">企劃總監</span>
+          </div>
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 hover:bg-gray-100 rounded-full transition"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+
         {!sidebarOpen && (
           <button 
             onClick={() => setSidebarOpen(true)}
-            className="fixed left-6 top-8 z-40 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-400 hover:text-black transition"
+            className="hidden md:flex fixed left-6 top-8 z-40 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-400 hover:text-black transition"
           >
             <ChevronRight size={20} />
           </button>
@@ -313,27 +350,27 @@ export default function App() {
 
         {/* Header / Stepper */}
         {state.currentStep !== Step.IDLE && (
-          <div className="px-10 pt-8 pb-4 bg-white/80 backdrop-blur-md z-10">
-            <div className="flex gap-4 mb-2">
+          <div className="px-6 md:px-10 pt-6 md:pt-8 pb-4 bg-white/80 backdrop-blur-md z-10">
+            <div className="flex gap-2 md:gap-4 mb-2">
               {[1, 2, 3].map((s) => (
                 <div 
                   key={s} 
                   className={cn(
-                    "h-1.5 rounded-full flex-1 transition-all duration-500",
+                    "h-1 md:h-1.5 rounded-full flex-1 transition-all duration-500",
                     s <= (state.currentStep === Step.OUTPUT ? 3 : state.currentStep) ? "bg-black" : "bg-[#E5E5EA]"
                   )} 
                 />
               ))}
             </div>
             <div className="flex justify-between px-1">
-              <div className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.PHASE_1 ? "text-black" : "text-gray-400")}>1. 需求解讀與切角</div>
-              <div className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.PHASE_2 ? "text-black" : "text-gray-400")}>2. 網紅配對</div>
-              <div className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.OUTPUT ? "text-black" : "text-gray-400")}>3. 專業腳本</div>
+              <div className={cn("text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.PHASE_1 ? "text-black" : "text-gray-400")}>1. 需求解讀</div>
+              <div className={cn("text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.PHASE_2 ? "text-black" : "text-gray-400")}>2. 網紅配對</div>
+              <div className={cn("text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-colors", state.currentStep === Step.OUTPUT ? "text-black" : "text-gray-400")}>3. 專業腳本</div>
             </div>
           </div>
         )}
 
-        <div ref={viewportRef} className="flex-1 overflow-y-auto px-10 pb-40 no-scrollbar">
+        <div ref={viewportRef} className="flex-1 overflow-y-auto px-6 md:px-10 pb-40 no-scrollbar">
           <AnimatePresence mode="wait">
             {state.currentStep === Step.IDLE && (
               <motion.section
@@ -360,19 +397,19 @@ export default function App() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="max-w-2xl mx-auto pt-4 space-y-8"
+                className="max-w-2xl mx-auto pt-4 space-y-6 md:space-y-8"
               >
-                <div>
-                  <h3 className="text-3xl font-bold mb-2">步驟 1.1：客戶需求單解讀</h3>
-                  <p className="text-gray-400 font-medium italic">「磨刀不誤砍柴工，先與 AI 對齊您的核心 Brief。」</p>
+                <div className="px-1">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">步驟 1.1：需求單解讀</h3>
+                  <p className="text-gray-400 font-medium italic text-sm md:text-base">「磨刀不誤砍柴工，先與 AI 對齊您的核心 Brief。」</p>
                 </div>
-                <div className="space-y-6">
-                  <div className="ios-card p-8">
-                    <div className="flex justify-between items-center mb-4">
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400">上傳需求單或輸入 Brief</label>
+                <div className="space-y-4 md:space-y-6">
+                  <div className="ios-card p-5 md:p-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                      <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-gray-400">上傳需求單或輸入 Brief</label>
                       <button 
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-1.5 text-[11px] font-bold text-black bg-white px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all"
+                        className="flex items-center gap-1.5 text-[10px] md:text-[11px] font-bold text-black bg-white px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all"
                       >
                         <Paperclip size={12} /> 上傳附件
                       </button>
@@ -387,23 +424,23 @@ export default function App() {
                     <textarea 
                       value={state.brief}
                       onChange={(e) => setState(prev => ({ ...prev, brief: e.target.value }))}
-                      className="w-full bg-transparent border-none focus:ring-0 text-lg placeholder:text-gray-300 min-h-[160px] resize-none" 
+                      className="w-full bg-transparent border-none focus:ring-0 text-base md:text-lg placeholder:text-gray-300 min-h-[140px] md:min-h-[160px] resize-none" 
                       placeholder="輸入產品描述、目標受眾或必提關鍵字..."
                     />
                   </div>
-                  <div className="ios-card p-8">
-                    <label className="block text-[11px] font-bold mb-4 uppercase tracking-widest text-gray-400">使用者補充說明 (階段 1)</label>
+                  <div className="ios-card p-5 md:p-8">
+                    <label className="block text-[10px] md:text-[11px] font-bold mb-4 uppercase tracking-widest text-gray-400">使用者補充說明 (階段 1)</label>
                     <textarea 
                       value={state.extraP1}
                       onChange={(e) => setState(prev => ({ ...prev, extraP1: e.target.value }))}
-                      className="w-full bg-transparent border-none focus:ring-0 text-sm italic min-h-[80px] resize-none" 
+                      className="w-full bg-transparent border-none focus:ring-0 text-xs md:text-sm italic min-h-[70px] md:min-h-[80px] resize-none" 
                       placeholder="任何變數或特定需求，例如：避開競品關鍵字..."
                     />
                   </div>
                   <button 
                     onClick={handleProcessStep1}
                     disabled={loading}
-                    className="w-full bg-black text-white rounded-2xl py-4 font-bold shadow-lg hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-black text-white rounded-2xl py-3.5 md:py-4 font-bold shadow-lg hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                   >
                     {loading ? "處理中..." : "開始解讀需求"}
                   </button>
@@ -539,8 +576,8 @@ export default function App() {
         {/* Chat Bar */}
         {state.currentStep !== Step.IDLE && (
           <div className={cn(
-            "fixed bottom-10 transform -translate-x-1/2 w-full max-w-2xl px-6 transition-all duration-500 z-40",
-            sidebarOpen ? "left-[calc(50%+144px)]" : "left-1/2"
+            "fixed bottom-6 md:bottom-10 transform -translate-x-1/2 w-full max-w-2xl px-4 md:px-6 transition-all duration-500 z-40",
+            sidebarOpen ? "left-1/2 md:left-[calc(50%+144px)]" : "left-1/2"
           )}>
             {pendingFiles.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2 px-4">

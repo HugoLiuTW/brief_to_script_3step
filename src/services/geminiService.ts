@@ -1,15 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_INSTRUCTION, GEMINI_MODEL, Step, FileContent } from "../types";
 
-const getApiKey = () => {
+const getAI = () => {
   const key = process.env.GEMINI_API_KEY;
-  if (!key || key === "MY_GEMINI_API_KEY") {
-    return "";
+  if (!key || key === "MY_GEMINI_API_KEY" || key === "") {
+    throw new Error("GEMINI_API_KEY is not set. Please configure it in your environment variables.");
   }
-  return key;
+  return new GoogleGenAI({ apiKey: key });
 };
-
-const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 export async function processMarketingStep(
   step: Step,
@@ -23,6 +21,7 @@ export async function processMarketingStep(
     files?: FileContent[];
   }
 ) {
+  const ai = getAI();
   const parts: any[] = [
     {
       text: `Current Step: ${step}\nData: ${JSON.stringify({ ...data, files: undefined })}`,
@@ -72,6 +71,7 @@ export async function chatWithDirector(
   history: { role: string; parts: any[] }[],
   files?: FileContent[]
 ) {
+  const ai = getAI();
   const chat = ai.chats.create({
     model: GEMINI_MODEL,
     config: {
