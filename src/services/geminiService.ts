@@ -1,7 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_INSTRUCTION, GEMINI_MODEL, Step, FileContent } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const getApiKey = () => {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key || key === "MY_GEMINI_API_KEY") {
+    return "";
+  }
+  return key;
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 export async function processMarketingStep(
   step: Step,

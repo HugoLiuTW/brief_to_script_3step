@@ -249,8 +249,16 @@ export default function App() {
     navigator.clipboard.writeText(text);
   };
 
+  const isApiKeyMissing = !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY";
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-white">
+      {isApiKeyMissing && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] bg-amber-50 border border-amber-200 text-amber-800 px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2">
+          <Sparkles size={14} className="text-amber-500" />
+          未偵測到 API Key，請在環境變數中設定 GEMINI_API_KEY
+        </div>
+      )}
       {/* Sidebar */}
       <motion.aside
         initial={false}
